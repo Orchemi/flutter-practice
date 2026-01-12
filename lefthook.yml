@@ -1,0 +1,24 @@
+commit-msg:
+  jobs:
+    - name: "commit-convention"
+      script: commit-convention-checker.sh
+      runner: "bash"
+      fail_text: "Commit message does not follow the conventional commits specification"
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: "ignore-case-failure"
+      script: ignore-case-checker.sh
+      runner: "bash"
+      fail_text: "Git case-sensitive setting is enabled"
+
+    - name: "analyze"
+      glob: "*.dart"
+      run: "flutter analyze"
+      fail_text: "Flutter analyze failed"
+
+    - name: "format"
+      glob: "*.dart"
+      run: "dart format --set-exit-if-changed ."
+      fail_text: "Dart format failed"
