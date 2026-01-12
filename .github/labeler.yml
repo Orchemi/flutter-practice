@@ -1,0 +1,103 @@
+version: 1
+issues: True
+
+labels:
+  ## Common =======================================================
+
+  ## Issue ========================================================
+  ### Title -------------------------------------------------------
+  - label: "❓ question"
+    type: "issue"
+    title: "^(Q.|Question).*"
+
+  - label: "❓ question"
+    type: "issue"
+    title: ".*\\?$"
+
+  - label: "🐞 bug"
+    type: "issue"
+    title: "^(bug|Bug).*"
+
+  ### Body --------------------------------------------------------
+  - label: "🐞 bug"
+    type: "issue"
+    body: "- \\[x\\] 버그"
+
+  - label: "✨ feature"
+    type: "issue"
+    body: "- \\[x\\] 기능 추가"
+
+  - label: "🛠️ enhancement"
+    type: "issue"
+    body: "- \\[x\\] 기능 개선"
+
+  - label: "🧹 refactor"
+    type: "issue"
+    body: "- \\[x\\] 구조 개선"
+
+  - label: "⚙️ chore"
+    type: "issue"
+    body: "- \\[x\\] 기타 작업"
+
+  ## Pull Request ===================================================
+  ### File / Directory Based (PRs only) -----------------------------
+  - label: "📝 docs"
+    files:
+      - ".*\\.md"
+
+  - label: "✅ test"
+    files:
+      - ".*\\.test\\.(ts|tsx)$"
+
+  - label: "✅ test"
+    files:
+      - ".*\\/__tests__\\/.*"
+
+  - label: "♻️ workflow"
+    files:
+      - ".github/.*"
+      - ".*\\.yml"
+
+  - label: "💾 server"
+    files:
+      - ".*\\/app\\/api\\/.*"
+
+  ### Branch (PRs only) ---------------------------------------------
+  - label: "✨ feature"
+    branch: "(feat|feature)/.*"
+
+  - label: "🛠️ bugfix"
+    branch: "fix/.*"
+
+  - label: "🚨 hotfix"
+    branch: "hotfix/.*"
+
+  - label: "🧹 refactor"
+    branch: "(refact|refactor)/.*"
+
+  - label: "🏷️ release"
+    branch: "(release/.*|develop)"
+
+  ### Size (PRs only) -----------------------------------------------
+  - label: "📏 diff:XS"
+    size:
+      below: 50
+
+  - label: "📏 diff:S"
+    size:
+      above: 50
+      below: 150
+
+  - label: "📏 diff:M"
+    size:
+      above: 150
+      below: 250
+
+  - label: "📏 diff:L"
+    size:
+      above: 250
+      below: 500
+
+  - label: "📏 diff:XL"
+    size:
+      above: 500
