@@ -38,12 +38,148 @@ React 개발을 위해 Node.js가 필요하듯, Flutter 개발을 위해 Flutter
 
 ### 체크리스트
 
-#### 1단계: Flutter 설치 확인
+#### 0단계: Flutter 설치 (미설치 시)
+
+macOS 환경에서 Flutter 설치:
+
+```bash
+# 1. Flutter SDK 설치
+brew install --cask flutter
+
+# 2. Xcode Command Line Tools 설치 (iOS 개발 필수)
+xcode-select --install
+
+# 3. rbenv와 ruby-build 설치 (Ruby 버전 관리)
+brew install rbenv ruby-build
+
+# 4. rbenv 초기화 스크립트를 셸에 추가
+echo 'eval "$(rbenv init -)"' >> ~/.zshrc
+source ~/.zshrc
+
+# 5. Ruby 3.3.0 설치
+rbenv install 3.3.0
+
+# 6. 전역 Ruby 버전을 3.3.0으로 설정
+rbenv global 3.3.0
+
+# 7. 셸 재시작 또는 설정 다시 로드
+source ~/.zshrc
+
+# 8. Ruby 버전 확인 (3.3.0이어야 함)
+ruby -v
+
+# 9. CocoaPods 설치
+gem install cocoapods
+```
+
+**체크리스트:**
+
+- [ ] `brew install --cask flutter` 실행
+- [ ] `xcode-select --install` 실행
+- [ ] `brew install rbenv ruby-build` 실행
+- [ ] `echo 'eval "$(rbenv init -)"' >> ~/.zshrc` 실행
+- [ ] `source ~/.zshrc` 실행
+- [ ] `rbenv install 3.3.0` 실행
+- [ ] `rbenv global 3.3.0` 실행
+- [ ] 터미널 재시작 또는 `source ~/.zshrc` 실행
+- [ ] `ruby -v`로 3.3.0 확인
+- [ ] `gem install cocoapods` 실행
+
+**주의사항:**
+
+- macOS에는 기본 Ruby 2.6이 포함되어 있지만, CocoaPods는 Ruby 3.0 이상 필요
+- Apple Silicon (M1/M2/M3)에서는 rbenv 사용을 권장 (호환성 문제 최소화)
+- Homebrew로 설치한 Ruby 대신 rbenv를 사용하면 버전 관리가 용이함
+
+**트러블슈팅:**
+
+만약 `gem install cocoapods` 실행 시 ffi 관련 에러가 발생하면:
+
+```bash
+# ffi 1.17.3 먼저 설치 (Ruby 2.6 호환 버전)
+gem install ffi -v 1.17.3
+
+# 또는 Apple Silicon용
+gem install ffi -v 1.17.3 --platform arm64-darwin
+
+# 이후 CocoaPods 재시도
+gem install cocoapods
+
+# ffi 설치 확인
+gem list ffi
+```
+
+만약 그래도 문제가 있다면:
+
+```bash
+# ffi 완전 제거 후 재설치
+gem uninstall ffi
+gem install ffi
+```
+
+#### 1단계: Android Studio 설치 (Android 개발용)
+
+Android 앱을 빌드하려면 Android Studio가 필요합니다.
+
+```bash
+# Android Studio 설치
+brew install --cask android-studio
+```
+
+**Android Studio 초기 설정:**
+
+Android Studio를 처음 실행하면 설정 마법사가 나타납니다:
+
+1. **Android Studio 첫 실행 시:**
+   - Welcome 화면에서 설정 마법사 시작
+   - "Standard" 설치 타입 선택 (권장: 필요한 SDK 자동 설치)
+   - 또는 "Custom" 선택 (고급 사용자용)
+   - SDK 다운로드 및 설치 완료까지 대기
+
+2. **이미 설치 마법사를 완료했다면:**
+   - 메인 화면에서 바로 3단계로 이동
+
+3. **SDK Command-line Tools 설치:**
+   - Android Studio 메인 화면 우측 하단의 Settings 아이콘 클릭 (⚙️)
+   - 또는 상단 메뉴: Android Studio > Settings (⌘,)
+   - Appearance & Behavior > System Settings > Android SDK
+   - 상단 탭에서 **SDK Tools** 클릭
+   - ☐ **Android SDK Command-line Tools (latest)** 체크
+   - 우측 하단 **Apply** 버튼 클릭
+   - 다운로드 및 설치 완료까지 대기
+   - **OK** 버튼으로 닫기
+
+**체크리스트:**
+
+- [ ] `brew install --cask android-studio` 실행
+- [ ] Android Studio 실행 및 Standard 설치
+- [ ] SDK Tools에서 Command-line Tools 설치
+- [ ] Android SDK 라이선스 승인
+
+#### 2단계: Android 라이선스 승인
+
+```bash
+# Android SDK 라이선스 모두 승인
+flutter doctor --android-licenses
+
+# 모든 라이선스에 'y' 입력
+```
+
+**주의사항:**
+- 모든 라이선스 약관에 `y`를 입력해야 함
+- 약 7-8개의 라이선스가 나타남
+
+**체크리스트:**
+
+- [ ] `flutter doctor --android-licenses` 실행
+- [ ] 모든 라이선스에 `y` 입력
+
+#### 3단계: Flutter 설치 확인
 
 - [ ] `flutter --version` 실행하여 버전 확인
 - [ ] `flutter doctor` 실행하여 환경 점검
 
-#### 2단계: 결과 해석
+#### 4단계: 결과 해석
 
 `flutter doctor` 출력 예시:
 ```
@@ -69,12 +205,52 @@ flutter --version과 flutter doctor를 실행해서 결과를 보여줘.
 
 - [ ] `flutter --version` 출력 확인
 - [ ] `flutter doctor` 출력에서 Flutter 항목이 `[✓]`
+- [ ] `flutter doctor` 출력에서 Android toolchain 항목이 `[✓]`
+
+### 트러블슈팅
+
+**문제 1: cmdline-tools component is missing**
+
+```
+✗ cmdline-tools component is missing.
+  Try installing or updating Android Studio.
+```
+
+**해결 방법:**
+1. Android Studio 실행
+2. Settings (⌘,) > Android SDK > SDK Tools
+3. "Android SDK Command-line Tools" 체크 후 Apply
+
+**문제 2: Android license status unknown**
+
+```
+✗ Android license status unknown.
+  Run `flutter doctor --android-licenses` to accept the SDK licenses.
+```
+
+**해결 방법:**
+```bash
+flutter doctor --android-licenses
+# 모든 라이선스에 'y' 입력
+```
+
+**문제 3: ANDROID_HOME 환경 변수 미설정**
+
+**해결 방법:**
+```bash
+# ~/.zshrc에 추가
+echo 'export ANDROID_HOME=$HOME/Library/Android/sdk' >> ~/.zshrc
+echo 'export PATH=$PATH:$ANDROID_HOME/emulator' >> ~/.zshrc
+echo 'export PATH=$PATH:$ANDROID_HOME/platform-tools' >> ~/.zshrc
+source ~/.zshrc
+```
 
 ### 사용자 검수 포인트
 
 1. Flutter 버전이 출력되는지 확인
 2. `flutter doctor` 결과에서 심각한 오류(`[✗]`)가 없는지 확인
-3. Android 또는 iOS 중 하나 이상 개발 가능한지 확인
+3. Android toolchain이 `[✓]`로 표시되는지 확인
+4. 최소 Android 또는 iOS 중 하나 이상 개발 가능한지 확인
 
 ---
 
