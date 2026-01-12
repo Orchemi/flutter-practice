@@ -1,0 +1,297 @@
+name: "Discord Notifications"
+
+on:
+  # Vercel 배포 상태 변경 시 (배포 알림 + PR 체크 완료 확인)
+  deployment_status:
+
+jobs:
+  # ============================================
+  # PR 모든 체크 완료 알림 (Merge 가능 상태)
+  # Vercel 배포 완료 시점에 모든 체크 상태 확인
+  # ============================================
+  notify-pr-checks:
+    if: |
+      github.event.deployment_status.state == 'success' ||
+      github.event.deployment_status.state == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all PR checks status
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # deployment_status에서 commit SHA 추출
+          HEAD_SHA="${{ github.event.deployment.sha }}"
+
+          # commit SHA로 PR 정보 가져오기
+          PR_DATA=$(gh api repos/${{ github.repository }}/commits/${HEAD_SHA}/pulls --jq '.[0] | {number, title, head: .head.ref}' 2>/dev/null || echo "")
+
+          if [ -z "$PR_DATA" ] || [ "$PR_DATA" == "null" ]; then
+            echo "No PR associated with this deployment"
+            echo "should_notify=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          PR_NUMBER=$(echo "$PR_DATA" | jq -r '.number')
+          PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
+          HEAD_BRANCH=$(echo "$PR_DATA" | jq -r '.head')
+
+          if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" == "null" ]; then
+            echo "No PR number found"
+            echo "should_notify=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "number=${PR_NUMBER}" >> $GITHUB_OUTPUT
+          echo "title=${PR_TITLE}" >> $GITHUB_OUTPUT
+          echo "head_branch=${HEAD_BRANCH}" >> $GITHUB_OUTPUT
+          echo "head_sha=${HEAD_SHA}" >> $GITHUB_OUTPUT
+
+          # 해당 commit의 모든 check runs 가져오기
+          CHECK_RUNS=$(gh api repos/${{ github.repository }}/commits/${HEAD_SHA}/check-runs --jq '.check_runs')
+
+          # 전체 체크 수
+          TOTAL_CHECKS=$(echo "$CHECK_RUNS" | jq 'length')
+          echo "Total checks: $TOTAL_CHECKS"
+
+          # 아직 완료되지 않은 체크가 있는지 확인 (in_progress, queued 등)
+          PENDING_CHECKS=$(echo "$CHECK_RUNS" | jq '[.[] | select(.status != "completed")] | length')
+          echo "Pending checks: $PENDING_CHECKS"
+
+          if [ "$PENDING_CHECKS" -gt 0 ]; then
+            echo "Some checks are still running, skipping PR check notification"
+            echo "should_notify=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # 실패한 체크 확인 (failure, cancelled, timed_out 등)
+          # skipped와 neutral은 성공으로 간주
+          FAILED_CHECKS=$(echo "$CHECK_RUNS" | jq '[.[] | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | length')
+          echo "Failed checks: $FAILED_CHECKS"
+
+          # 실패한 체크 이름 목록
+          FAILED_NAMES=$(echo "$CHECK_RUNS" | jq -r '[.[] | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | .[].name' | tr '\n' ', ' | sed 's/,$//')
+
+          if [ "$FAILED_CHECKS" -gt 0 ]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "failed_names=${FAILED_NAMES}" >> $GITHUB_OUTPUT
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+          echo "should_notify=true" >> $GITHUB_OUTPUT
+          echo "total_checks=${TOTAL_CHECKS}" >> $GITHUB_OUTPUT
+
+      - name: Notify Discord - All Checks Completed
+        if: steps.check.outputs.should_notify == 'true'
+        env:
+          WEBHOOK_URL: ${{ secrets.REPOSITORY_DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "REPOSITORY_DISCORD_WEBHOOK_URL is not set, skipping notification"
+            exit 0
+          fi
+
+          STATUS="${{ steps.check.outputs.status }}"
+          PR_NUMBER="${{ steps.check.outputs.number }}"
+          PR_TITLE="${{ steps.check.outputs.title }}"
+          TOTAL_CHECKS="${{ steps.check.outputs.total_checks }}"
+          FAILED_NAMES="${{ steps.check.outputs.failed_names }}"
+          HEAD_BRANCH="${{ steps.check.outputs.head_branch }}"
+
+          # 리포지토리 이름 추출 (org/repo → repo)
+          REPO_NAME="${{ github.repository }}"
+          APP_NAME="${REPO_NAME##*/}"
+
+          # 상태에 따른 색상 및 제목 설정
+          if [ "$STATUS" == "success" ]; then
+            COLOR=3066993  # 녹색
+            TITLE=":white_check_mark: Merge 가능 - 모든 체크 통과"
+            DESCRIPTION="모든 ${TOTAL_CHECKS}개 체크가 성공적으로 완료되었습니다."
+          else
+            COLOR=15158332  # 빨간색
+            TITLE=":x: Merge 불가 - 체크 실패"
+            DESCRIPTION="실패한 체크: ${FAILED_NAMES}"
+          fi
+
+          # Fields 구성
+          FIELDS="["
+          FIELDS="${FIELDS}{\"name\": \":label: Ref\", \"value\": \"${APP_NAME} @${HEAD_BRANCH}\", \"inline\": true}"
+
+          # PR 필드 추가
+          PR_URL="https://github.com/${{ github.repository }}/pull/${PR_NUMBER}"
+          FIELDS="${FIELDS}, {\"name\": \":dart: PR\", \"value\": \"[${PR_TITLE} #${PR_NUMBER}](${PR_URL})\", \"inline\": true}"
+
+          FIELDS="${FIELDS}]"
+
+          # ISO 8601 timestamp
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+
+          curl -s -X POST "$WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"username\": \"GitHub Actions\",
+              \"avatar_url\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\",
+              \"embeds\": [{
+                \"title\": \"${TITLE}\",
+                \"description\": \"${DESCRIPTION}\",
+                \"color\": ${COLOR},
+                \"fields\": ${FIELDS},
+                \"timestamp\": \"${TIMESTAMP}\"
+              }]
+            }"
+
+  # ============================================
+  # Vercel 배포 완료 알림 (앱별 개별 알림)
+  # ============================================
+  notify-vercel-deploy:
+    if: |
+      github.event.deployment_status.state == 'success' ||
+      github.event.deployment_status.state == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Vercel deployment info
+        id: vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          TARGET_URL="${{ github.event.deployment_status.target_url }}"
+
+          # URL에서 호스트 추출 (https:// 제거)
+          DEPLOY_HOST=$(echo "$TARGET_URL" | sed -E 's|https?://||')
+
+          # Vercel API로 deployment 정보 가져오기
+          RESPONSE=$(curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v13/deployments/${DEPLOY_HOST}")
+
+          # deployment ID와 프로젝트 정보 추출
+          DEPLOY_ID=$(echo "$RESPONSE" | jq -r '.id // empty')
+          PROJECT_NAME=$(echo "$RESPONSE" | jq -r '.name // empty')
+          TEAM_SLUG=$(echo "$RESPONSE" | jq -r '.team.slug // empty')
+
+          # 브랜치 정보 (meta.githubCommitRef)
+          BRANCH=$(echo "$RESPONSE" | jq -r '.meta.githubCommitRef // empty')
+
+          # 빌드 소요 시간 계산 (buildingAt ~ ready, 밀리초 단위)
+          BUILDING_AT=$(echo "$RESPONSE" | jq -r '.buildingAt // empty')
+          READY_AT=$(echo "$RESPONSE" | jq -r '.ready // empty')
+          DURATION=""
+          if [ -n "$BUILDING_AT" ] && [ -n "$READY_AT" ]; then
+            DURATION_MS=$((READY_AT - BUILDING_AT))
+            DURATION_SEC=$((DURATION_MS / 1000))
+            if [ $DURATION_SEC -lt 60 ]; then
+              DURATION="in ${DURATION_SEC}s"
+            else
+              DURATION_MIN=$((DURATION_SEC / 60))
+              DURATION_SEC_REM=$((DURATION_SEC % 60))
+              if [ $DURATION_SEC_REM -eq 0 ]; then
+                DURATION="in ${DURATION_MIN}m"
+              else
+                DURATION="in ${DURATION_MIN}m ${DURATION_SEC_REM}s"
+              fi
+            fi
+          fi
+
+          # dpl_ prefix 제거 (Vercel 대시보드 URL 형식에 맞춤)
+          DEPLOY_ID_SHORT=$(echo "$DEPLOY_ID" | sed 's/^dpl_//')
+
+          # Vercel 대시보드 URL 구성
+          if [ -n "$DEPLOY_ID_SHORT" ] && [ -n "$PROJECT_NAME" ] && [ -n "$TEAM_SLUG" ]; then
+            VERCEL_DASHBOARD_URL="https://vercel.com/${TEAM_SLUG}/${PROJECT_NAME}/${DEPLOY_ID_SHORT}"
+          else
+            VERCEL_DASHBOARD_URL=""
+          fi
+
+          echo "dashboard_url=${VERCEL_DASHBOARD_URL}" >> $GITHUB_OUTPUT
+          echo "deploy_id=${DEPLOY_ID_SHORT}" >> $GITHUB_OUTPUT
+          echo "branch=${BRANCH}" >> $GITHUB_OUTPUT
+          echo "duration=${DURATION}" >> $GITHUB_OUTPUT
+
+      - name: Notify Discord - Vercel Deploy
+        env:
+          WEBHOOK_URL: ${{ secrets.REPOSITORY_DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "REPOSITORY_DISCORD_WEBHOOK_URL is not set, skipping notification"
+            exit 0
+          fi
+
+          STATE="${{ github.event.deployment_status.state }}"
+          ENVIRONMENT="${{ github.event.deployment_status.environment }}"
+          TARGET_URL="${{ github.event.deployment_status.target_url }}"
+          VERCEL_DASHBOARD_URL="${{ steps.vercel.outputs.dashboard_url }}"
+          DEPLOY_ID="${{ steps.vercel.outputs.deploy_id }}"
+          BRANCH="${{ steps.vercel.outputs.branch }}"
+          DURATION="${{ steps.vercel.outputs.duration }}"
+
+          # 리포지토리 이름 추출 (org/repo → repo)
+          REPO_NAME="${{ github.repository }}"
+          REPO_SHORT="${REPO_NAME##*/}"
+
+          # 환경 이름에서 앱 이름 추출
+          FULL_APP_NAME=$(echo "$ENVIRONMENT" | sed -E 's/^(Production|Preview|Development)[[:space:]]*[–-][[:space:]]*//' | xargs)
+          APP_NAME=$(echo "$FULL_APP_NAME" | sed -E "s/^${REPO_SHORT}-//" | xargs)
+
+          if [ -z "$APP_NAME" ]; then
+            APP_NAME="$FULL_APP_NAME"
+          fi
+
+          # 환경 타입 추출
+          if echo "$ENVIRONMENT" | grep -qi "production"; then
+            ENV_TYPE="Production"
+          elif echo "$ENVIRONMENT" | grep -qi "preview"; then
+            ENV_TYPE="Preview"
+          else
+            ENV_TYPE="$ENVIRONMENT"
+          fi
+
+          # deployment ID에서 짧은 hash 추출 (앞 8자)
+          DEPLOY_HASH=$(echo "$DEPLOY_ID" | cut -c1-8)
+
+          # 제목에 duration 추가
+          DURATION_TEXT=""
+          if [ -n "$DURATION" ]; then
+            DURATION_TEXT=" \`${DURATION}\`"
+          fi
+
+          # 상태에 따른 색상 및 제목 설정
+          if [ "$STATE" == "success" ]; then
+            COLOR=3066993  # 녹색
+            TITLE=":rocket: ${APP_NAME} 배포 완료${DURATION_TEXT}"
+            if [ -n "$VERCEL_DASHBOARD_URL" ]; then
+              URL_VALUE="[Vercel#${DEPLOY_HASH}](${VERCEL_DASHBOARD_URL}) | [배포된 페이지](${TARGET_URL})"
+            else
+              URL_VALUE="[배포된 페이지](${TARGET_URL})"
+            fi
+          else
+            COLOR=15158332  # 빨간색
+            TITLE=":x: ${APP_NAME} 배포 실패"
+            if [ -n "$VERCEL_DASHBOARD_URL" ]; then
+              URL_VALUE="[Vercel#${DEPLOY_HASH}](${VERCEL_DASHBOARD_URL})"
+            else
+              URL_VALUE="배포 실패"
+            fi
+          fi
+
+          # Fields 구성
+          FIELDS="["
+          FIELDS="${FIELDS}{\"name\": \":earth_americas: Env\", \"value\": \"${ENV_TYPE}\", \"inline\": true}"
+          FIELDS="${FIELDS}, {\"name\": \":label: Ref\", \"value\": \"${REPO_SHORT} @${BRANCH}\", \"inline\": true}"
+          FIELDS="${FIELDS}, {\"name\": \":link: URL\", \"value\": \"${URL_VALUE}\", \"inline\": false}"
+          FIELDS="${FIELDS}]"
+
+          # ISO 8601 timestamp
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+
+          curl -s -X POST "$WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"username\": \"Vercel\",
+              \"avatar_url\": \"https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png\",
+              \"embeds\": [{
+                \"title\": \"${TITLE}\",
+                \"color\": ${COLOR},
+                \"fields\": ${FIELDS},
+                \"timestamp\": \"${TIMESTAMP}\"
+              }]
+            }"
