@@ -6,19 +6,19 @@
 
 ## React와 비교
 
-| 단계 | React | Flutter |
-|------|-------|---------|
-| 환경 확인 | `node -v`, `npm -v` | `flutter doctor` |
-| 프로젝트 생성 | `npx create-next-app` | `flutter create` |
-| 의존성 설치 | `npm install` | `flutter pub get` (자동) |
+| 단계          | React                 | Flutter                  |
+| ------------- | --------------------- | ------------------------ |
+| 환경 확인     | `node -v`, `npm -v`   | `flutter doctor`         |
+| 프로젝트 생성 | `npx create-next-app` | `flutter create`         |
+| 의존성 설치   | `npm install`         | `flutter pub get` (자동) |
 
 ## 태스크 요약
 
-| ID | 태스크 | 상태 |
-|----|--------|------|
-| TASK-0101 | Flutter SDK 설치 확인 | ✅ |
-| TASK-0102 | flutter create로 프로젝트 생성 | ✅ |
-| TASK-0103 | 불필요한 파일 정리 | ✅ |
+| ID        | 태스크                         | 상태 |
+| --------- | ------------------------------ | ---- |
+| TASK-0101 | Flutter SDK 설치 확인          | ✅   |
+| TASK-0102 | flutter create로 프로젝트 생성 | ✅   |
+| TASK-0103 | 불필요한 파일 정리             | ✅   |
 
 ---
 
@@ -26,10 +26,10 @@
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
-| **선행 조건** | 없음 |
+| 항목          | 내용    |
+| ------------- | ------- |
+| **상태**      | ✅ 완료 |
+| **선행 조건** | 없음    |
 
 ### 왜 필요한가요?
 
@@ -131,12 +131,14 @@ brew install --cask android-studio
 Android Studio를 처음 실행하면 설정 마법사가 나타납니다:
 
 1. **Android Studio 첫 실행 시:**
+
    - Welcome 화면에서 설정 마법사 시작
    - "Standard" 설치 타입 선택 (권장: 필요한 SDK 자동 설치)
    - 또는 "Custom" 선택 (고급 사용자용)
    - SDK 다운로드 및 설치 완료까지 대기
 
 2. **이미 설치 마법사를 완료했다면:**
+
    - 메인 화면에서 바로 3단계로 이동
 
 3. **SDK Command-line Tools 설치:**
@@ -166,6 +168,7 @@ flutter doctor --android-licenses
 ```
 
 **주의사항:**
+
 - 모든 라이선스 약관에 `y`를 입력해야 함
 - 약 7-8개의 라이선스가 나타남
 
@@ -182,6 +185,7 @@ flutter doctor --android-licenses
 #### 4단계: 결과 해석
 
 `flutter doctor` 출력 예시:
+
 ```
 [✓] Flutter (Channel stable, 3.x.x)
 [✓] Android toolchain
@@ -217,6 +221,7 @@ flutter --version과 flutter doctor를 실행해서 결과를 보여줘.
 ```
 
 **해결 방법:**
+
 1. Android Studio 실행
 2. Settings (⌘,) > Android SDK > SDK Tools
 3. "Android SDK Command-line Tools" 체크 후 Apply
@@ -229,6 +234,7 @@ flutter --version과 flutter doctor를 실행해서 결과를 보여줘.
 ```
 
 **해결 방법:**
+
 ```bash
 flutter doctor --android-licenses
 # 모든 라이선스에 'y' 입력
@@ -237,6 +243,7 @@ flutter doctor --android-licenses
 **문제 3: ANDROID_HOME 환경 변수 미설정**
 
 **해결 방법:**
+
 ```bash
 # ~/.zshrc에 추가
 echo 'export ANDROID_HOME=$HOME/Library/Android/sdk' >> ~/.zshrc
@@ -258,9 +265,9 @@ source ~/.zshrc
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0101 완료 |
 
 ### 왜 필요한가요?
@@ -327,9 +334,9 @@ TASK-0102를 진행해줘.
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0102 완료 |
 
 ### 왜 필요한가요?
@@ -411,6 +418,7 @@ TASK-0103 (파일 정리):    [██████████] 100% ✅
 **2026-01-12 완료**
 
 1. **TASK-0101**: Flutter SDK 설치 확인
+
    - rbenv 기반 Ruby 3.3.0 설치
    - CocoaPods 설치
    - Android Studio 설치 및 SDK Command-line Tools 설정
@@ -418,6 +426,7 @@ TASK-0103 (파일 정리):    [██████████] 100% ✅
    - `flutter doctor` 모든 항목 ✓
 
 2. **TASK-0102**: flutter create로 프로젝트 생성
+
    - Organization: com.orchemi
    - Project name: flutter_practice
    - 128개 파일 생성

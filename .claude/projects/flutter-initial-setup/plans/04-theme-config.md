@@ -6,20 +6,20 @@
 
 ## React와 비교
 
-| React | Flutter | 설명 |
-|-------|---------|------|
-| CSS variables / Theme Provider | `ThemeData` | 전역 테마 |
-| `colors.primary` | `Theme.of(context).primaryColor` | 색상 접근 |
-| styled-components theme | `ColorScheme` | 색상 팔레트 |
-| Typography system | `TextTheme` | 텍스트 스타일 |
+| React                          | Flutter                          | 설명          |
+| ------------------------------ | -------------------------------- | ------------- |
+| CSS variables / Theme Provider | `ThemeData`                      | 전역 테마     |
+| `colors.primary`               | `Theme.of(context).primaryColor` | 색상 접근     |
+| styled-components theme        | `ColorScheme`                    | 색상 팔레트   |
+| Typography system              | `TextTheme`                      | 텍스트 스타일 |
 
 ## 태스크 요약
 
-| ID | 태스크 | 상태 |
-|----|--------|------|
-| TASK-0401 | 색상 팔레트 정의 | ✅ |
-| TASK-0402 | 텍스트 스타일 정의 | ✅ |
-| TASK-0403 | ThemeData 구성 | ✅ |
+| ID        | 태스크             | 상태 |
+| --------- | ------------------ | ---- |
+| TASK-0401 | 색상 팔레트 정의   | ✅   |
+| TASK-0402 | 텍스트 스타일 정의 | ✅   |
+| TASK-0403 | ThemeData 구성     | ✅   |
 
 ---
 
@@ -27,9 +27,9 @@
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용         |
+| ------------- | ------------ |
+| **상태**      | ✅ 완료      |
 | **선행 조건** | Phase 3 완료 |
 
 ### 왜 필요한가요?
@@ -43,7 +43,7 @@ Flutter에서도 색상을 한 곳에서 관리하면 일관된 디자인을 유
 
 `lib/core/constants/app_colors.dart`:
 
-```dart
+````dart
 import 'package:flutter/material.dart';
 
 /// 앱에서 사용하는 색상 정의
@@ -88,7 +88,7 @@ abstract class AppColors {
   static const Color textSecondary = Color(0xFF6B7280); // gray-500
   static const Color textDisabled = Color(0xFF9CA3AF);  // gray-400
 }
-```
+````
 
 ### Claude Code 지침
 
@@ -114,9 +114,9 @@ lib/core/constants/app_colors.dart 파일을 생성하고,
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0401 완료 |
 
 ### 왜 필요한가요?
@@ -130,7 +130,7 @@ Flutter에서도 텍스트 스타일을 체계적으로 관리합니다.
 
 `lib/core/constants/app_text_styles.dart`:
 
-```dart
+````dart
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
@@ -229,7 +229,7 @@ abstract class AppTextStyles {
     height: 1.4,
   );
 }
-```
+````
 
 ### Claude Code 지침
 
@@ -254,9 +254,9 @@ lib/core/constants/app_text_styles.dart 파일을 생성해줘.
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0402 완료 |
 
 ### 왜 필요한가요?
@@ -428,12 +428,14 @@ TASK-0403 (ThemeData):    [██████████] 100% ✅
 **2026-01-13 완료**
 
 1. **TASK-0401**: 색상 팔레트 정의
+
    - lib/core/constants/app_colors.dart 생성
    - Tailwind CSS 색상 체계 적용 (primary, secondary, gray scale)
    - Semantic 색상 정의 (success, warning, error, info)
    - 배경색 및 텍스트 색상 정의
 
 2. **TASK-0402**: 텍스트 스타일 정의
+
    - lib/core/constants/app_text_styles.dart 생성
    - Headline, Title, Body, Label 4가지 카테고리
    - 각 카테고리별 Large/Medium/Small 3단계

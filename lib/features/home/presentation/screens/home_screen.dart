@@ -5,54 +5,92 @@ import '../../../../shared/providers/counter_provider.dart';
 
 /// 홈 화면
 ///
-/// ConsumerWidget: Provider를 사용하는 위젯
-/// React의 함수 컴포넌트에서 useContext 사용하는 것과 유사
+/// ConsumerWidget: Riverpod Provider를 사용하는 위젯
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch: 상태 구독 (값이 변경되면 리빌드)
-    // React의 useContext + 자동 리렌더링과 유사
     final count = ref.watch(counterProvider);
-
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Flutter Practice'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              // TODO: 설정 화면으로 이동
+              // context.go(AppRoutes.settings);
+            },
+          ),
+        ],
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '안녕하세요! 👋',
-                style: textTheme.headlineLarge,
-              ),
+              // 헤더 섹션
+              Text('안녕하세요! 👋', style: textTheme.headlineLarge),
               const SizedBox(height: 8),
               Text(
-                'Flutter 앱이 정상적으로 실행되었습니다.',
+                'Flutter 프로젝트 초기 설정이 완료되었습니다.',
                 style: textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 32),
 
+              // 상태 카드들
+              _buildInfoCard(
+                context,
+                icon: Icons.check_circle,
+                title: '환경 설정 완료',
+                description: 'Flutter SDK, 패키지, lint 설정이 완료되었습니다.',
+                color: AppColors.success,
+              ),
+              const SizedBox(height: 12),
+
+              _buildInfoCard(
+                context,
+                icon: Icons.palette,
+                title: '테마 시스템',
+                description: '색상, 텍스트 스타일, ThemeData가 적용되었습니다.',
+                color: AppColors.primary,
+              ),
+              const SizedBox(height: 12),
+
+              _buildInfoCard(
+                context,
+                icon: Icons.route,
+                title: '라우팅 설정',
+                description: 'go_router로 화면 이동 시스템이 구축되었습니다.',
+                color: AppColors.secondary,
+              ),
+              const SizedBox(height: 12),
+
+              _buildInfoCard(
+                context,
+                icon: Icons.sync,
+                title: '상태 관리',
+                description: 'Riverpod으로 전역 상태 관리가 가능합니다.',
+                color: AppColors.info,
+              ),
+              const SizedBox(height: 32),
+
               // 카운터 섹션
               _buildCounterSection(context, ref, count),
-
-              const Spacer(),
+              const SizedBox(height: 32),
 
               // 하단 버튼
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // ref.read: 일회성 읽기 (이벤트 핸들러에서 사용)
                     ref.read(counterProvider.notifier).reset();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -61,12 +99,53 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     );
                   },
-                  child: const Text('리셋'),
+                  child: const Text('카운터 리셋'),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// 정보 카드 위젯
+  Widget _buildInfoCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha:0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha:0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha:0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 4),
+                Text(description, style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -82,12 +161,10 @@ class HomeScreen extends ConsumerWidget {
       child: Column(
         children: [
           Text(
-            'Riverpod 카운터',
+            'Riverpod 카운터 예제',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 16),
-
-          // 카운터 값
           Text(
             '$count',
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
@@ -96,12 +173,9 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-
-          // 버튼들
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 감소 버튼
               IconButton.filled(
                 onPressed: () {
                   ref.read(counterProvider.notifier).decrement();
@@ -109,8 +183,6 @@ class HomeScreen extends ConsumerWidget {
                 icon: const Icon(Icons.remove),
               ),
               const SizedBox(width: 24),
-
-              // 증가 버튼
               IconButton.filled(
                 onPressed: () {
                   ref.read(counterProvider.notifier).increment();

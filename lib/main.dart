@@ -5,11 +5,7 @@ import 'core/router/app_router.dart';
 
 void main() {
   // ProviderScope로 앱 감싸기 (React의 <Provider> 역할)
-  runApp(
-    const ProviderScope(
-      child: MyApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

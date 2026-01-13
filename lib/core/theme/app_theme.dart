@@ -53,9 +53,7 @@ class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
 
@@ -81,8 +79,6 @@ class AppTheme {
 
   // Dark 테마 (나중에 구현)
   static ThemeData get dark {
-    return ThemeData.dark(
-      useMaterial3: true,
-    );
+    return ThemeData.dark(useMaterial3: true);
   }
 }

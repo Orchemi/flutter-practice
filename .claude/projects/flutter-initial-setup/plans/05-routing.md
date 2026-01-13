@@ -6,22 +6,22 @@
 
 ## React와 비교
 
-| React Router | go_router (Flutter) | 설명 |
-|--------------|---------------------|------|
-| `<BrowserRouter>` | `GoRouter()` | 라우터 인스턴스 |
-| `<Route path="/">` | `GoRoute(path: '/')` | 라우트 정의 |
-| `useNavigate()` | `context.go()` | 프로그래밍 방식 이동 |
-| `<Link to="/">` | `context.go('/')` | 링크 이동 |
-| `useParams()` | `state.pathParameters` | URL 파라미터 |
-| Nested Routes | `routes: [...]` | 중첩 라우트 |
+| React Router       | go_router (Flutter)    | 설명                 |
+| ------------------ | ---------------------- | -------------------- |
+| `<BrowserRouter>`  | `GoRouter()`           | 라우터 인스턴스      |
+| `<Route path="/">` | `GoRoute(path: '/')`   | 라우트 정의          |
+| `useNavigate()`    | `context.go()`         | 프로그래밍 방식 이동 |
+| `<Link to="/">`    | `context.go('/')`      | 링크 이동            |
+| `useParams()`      | `state.pathParameters` | URL 파라미터         |
+| Nested Routes      | `routes: [...]`        | 중첩 라우트          |
 
 ## 태스크 요약
 
-| ID | 태스크 | 상태 |
-|----|--------|------|
-| TASK-0501 | 라우트 경로 상수 정의 | ✅ |
-| TASK-0502 | GoRouter 설정 | ✅ |
-| TASK-0503 | main.dart에 라우터 적용 | ✅ |
+| ID        | 태스크                  | 상태 |
+| --------- | ----------------------- | ---- |
+| TASK-0501 | 라우트 경로 상수 정의   | ✅   |
+| TASK-0502 | GoRouter 설정           | ✅   |
+| TASK-0503 | main.dart에 라우터 적용 | ✅   |
 
 ---
 
@@ -29,9 +29,9 @@
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용         |
+| ------------- | ------------ |
+| **상태**      | ✅ 완료      |
 | **선행 조건** | Phase 4 완료 |
 
 ### 왜 필요한가요?
@@ -45,7 +45,7 @@ Flutter에서도 경로 문자열을 한 곳에서 관리하면 오타를 방지
 
 `lib/core/router/app_routes.dart`:
 
-```dart
+````dart
 /// 앱에서 사용하는 라우트 경로 상수
 ///
 /// React Router의 path 문자열과 동일한 역할
@@ -66,7 +66,7 @@ abstract class AppRoutes {
   // static const String profile = '/profile/:id';
   // static String profileWithId(String id) => '/profile/$id';
 }
-```
+````
 
 ### Claude Code 지침
 
@@ -91,9 +91,9 @@ lib/core/router/app_routes.dart 파일을 위 내용으로 생성해줘.
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0501 완료 |
 
 ### 왜 필요한가요?
@@ -187,9 +187,9 @@ lib/core/router/app_router.dart 파일을 위 내용으로 생성해줘.
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0502 완료 |
 
 ### 왜 필요한가요?
@@ -275,12 +275,12 @@ context.goNamed('settings');
 
 ### React Router 비교
 
-| React Router | go_router | 설명 |
-|--------------|-----------|------|
-| `navigate('/path')` | `context.go('/path')` | 이동 (스택 교체) |
-| `navigate('/path', { replace: true })` | `context.go('/path')` | 교체 이동 |
-| `navigate(-1)` | `context.pop()` | 뒤로 가기 |
-| push to stack | `context.push('/path')` | 스택에 추가 |
+| React Router                           | go_router               | 설명             |
+| -------------------------------------- | ----------------------- | ---------------- |
+| `navigate('/path')`                    | `context.go('/path')`   | 이동 (스택 교체) |
+| `navigate('/path', { replace: true })` | `context.go('/path')`   | 교체 이동        |
+| `navigate(-1)`                         | `context.pop()`         | 뒤로 가기        |
+| push to stack                          | `context.push('/path')` | 스택에 추가      |
 
 ---
 
