@@ -167,6 +167,7 @@ Type 종류:
 
 - `/commit`: 커밋 생성
 - `/pr`: PR 생성
+- `/git-branch-sync`: PR merge 후 target branch를 현재 branch에 동기화
 
 ---
 
