@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
+import 'core/router/app_router.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,15 +11,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    // MaterialApp → MaterialApp.router로 변경!
+    return MaterialApp.router(
       title: 'Flutter Practice',
-      theme: AppTheme.light,        // 라이트 테마 적용
-      darkTheme: AppTheme.dark,     // 다크 테마 (시스템 설정 따름)
-      home: const Scaffold(
-        body: Center(
-          child: Text('Hello, Flutter!'),
-        ),
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      // 라우터 설정 연결
+      routerConfig: appRouter,
     );
   }
 }

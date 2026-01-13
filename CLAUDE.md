@@ -9,6 +9,7 @@
 ### Git 커밋/PR/Push
 
 커밋/PR 요청 시 반드시 해당 command 파일 절차를 따를 것:
+
 - **커밋**: `.claude/commands/commit.md`
 - **PR**: `.claude/commands/pr.md`
 
@@ -20,13 +21,14 @@
 
 **모든 응답의 마지막 행동으로** `.claude/summary.json` 파일을 Edit 도구로 수정할 것.
 
-| 필드 | 작성 방법 |
-|------|-----------|
-| `request` | 사용자가 요청한 내용을 한글 한 문장으로 요약 |
-| `response` | 내가 수행한 작업 결과를 한글 한 문장으로 요약 |
-| `started_at` | **절대 수정 금지** (hook이 자동 생성) |
+| 필드         | 작성 방법                                     |
+| ------------ | --------------------------------------------- |
+| `request`    | 사용자가 요청한 내용을 한글 한 문장으로 요약  |
+| `response`   | 내가 수행한 작업 결과를 한글 한 문장으로 요약 |
+| `started_at` | **절대 수정 금지** (hook이 자동 생성)         |
 
 **기본 예시:**
+
 ```json
 {
   "request": "Flutter 프로젝트 초기 설정 요청",
@@ -36,10 +38,11 @@
 ```
 
 **커밋 완료 시 예시:**
+
 ```json
 {
   "request": "커밋 요청",
-  "response": "Feat: 로그인 화면 UI 구현 #3",
+  "response": "feat: 로그인 화면 UI 구현 #3",
   "started_at": "..."
 }
 ```
@@ -87,10 +90,10 @@ flutter-practice/
 
 ## 프로젝트 참조 문서
 
-| 문서 | 설명 |
-|------|------|
-| `.claude/docs/notify-workflow.md` | Discord 알림 워크플로우 |
-| `.claude/projects/README.md` | 대규모 프로젝트 관리 가이드 |
+| 문서                              | 설명                        |
+| --------------------------------- | --------------------------- |
+| `.claude/docs/notify-workflow.md` | Discord 알림 워크플로우     |
+| `.claude/projects/README.md`      | 대규모 프로젝트 관리 가이드 |
 
 ---
 

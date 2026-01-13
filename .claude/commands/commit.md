@@ -91,12 +91,12 @@ git commit -m "<Type>: <Subject> #<이슈번호>"
 ## 예시
 
 ```
-Feat: 다크모드 토글 버튼 추가 #112
-Fix: 사이드바 스크롤 오류 해결 #108
-Style: 헤더 레이아웃 간격 조정 #115
-Refactor: API 호출 로직 분리 #120
-Docs: README 설치 가이드 업데이트 #99
-Chore: ESLint 설정 업데이트 #101
+feat: 다크모드 토글 버튼 추가 #112
+fix: 사이드바 스크롤 오류 해결 #108
+style: 헤더 레이아웃 간격 조정 #115
+refactor: API 호출 로직 분리 #120
+docs: README 설치 가이드 업데이트 #99
+chore: ESLint 설정 업데이트 #101
 ```
 
 $ARGUMENTS

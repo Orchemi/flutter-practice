@@ -9,6 +9,7 @@ PR merge 후 target branch를 fetch하여 현재 branch에 merge합니다.
 PR을 merge한 후, target branch의 최신 변경사항을 현재 branch에 반영하는 과정을 자동화합니다.
 
 **기본 워크플로우**:
+
 1. PR이 merge되었는지 확인
 2. Target branch를 local에 fetch
 3. 충돌 여부 확인
@@ -67,17 +68,20 @@ git fetch origin <target-branch>:<target-branch>
 이 명령어는 다음과 같은 경우 실패할 수 있습니다:
 
 1. **Local branch가 remote보다 앞서 있는 경우**:
+
    - 에러 메시지: `! [rejected] ... (non-fast-forward)`
    - **대응**: 사용자에게 상황 설명 후 중단
    - 메시지: "Local <target-branch>가 remote보다 앞서 있습니다. 수동으로 확인이 필요합니다."
 
 2. **Local에 target branch가 없는 경우**:
+
    - 자동으로 생성되므로 문제없음
 
 3. **Network 오류**:
    - 에러 메시지 그대로 표시 후 중단
 
 **에러 발생 시**:
+
 - 더 이상 진행하지 않음
 - git merge 실행하지 않음
 - 사용자에게 에러 내용 전달
@@ -93,6 +97,7 @@ git merge --no-commit --no-ff <target-branch>
 **결과에 따른 분기**:
 
 - **충돌 없음**:
+
   - `git merge --abort`로 되돌린 후 Step 5로 진행
 
 - **충돌 있음**:
@@ -111,12 +116,14 @@ git merge <target-branch>
 **결과 표시**:
 
 - Merge 성공 시:
+
   ```
   ✅ <target-branch>를 현재 branch에 merge했습니다.
   Fast-forward merge: <commit-hash>
   ```
 
 - Merge 실패 (충돌) 시:
+
   ```
   ⚠️ Merge 충돌이 발생했습니다.
   충돌 파일:
@@ -154,8 +161,8 @@ git log --oneline -5
 6. ✅ main을 feat/7에 merge했습니다 (Fast-forward)
 
 최근 커밋:
-- abc1234 Feat: Phase 4 완료
-- def5678 Feat: Phase 3 완료
+- abc1234 feat: Phase 4 완료
+- def5678 feat: Phase 3 완료
 - ...
 ```
 
@@ -215,14 +222,17 @@ Local main branch가 remote origin/main보다 커밋이 앞서 있어
 ## 주의사항
 
 1. **커밋되지 않은 변경사항**:
+
    - 작업 중인 변경사항이 있으면 먼저 커밋하거나 stash 필요
    - 이 명령어는 자동으로 stash하지 않음
 
 2. **Local target branch 상태**:
+
    - Local main이 remote보다 앞서 있으면 fetch 실패
    - 이 경우 수동으로 확인 필요
 
 3. **Merge 전략**:
+
    - 기본적으로 merge commit 생성 (`--no-ff`)
    - Fast-forward 가능한 경우에도 merge commit 생성
 
