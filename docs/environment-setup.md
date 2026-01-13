@@ -14,7 +14,9 @@
 8. [Step 7: Android 환경 변수 설정](#step-7-android-환경-변수-설정)
 9. [Step 8: Android 라이선스 승인](#step-8-android-라이선스-승인)
 10. [Step 9: 최종 확인](#step-9-최종-확인)
-11. [트러블슈팅](#트러블슈팅)
+11. [iOS 시뮬레이터에서 앱 실행](#ios-시뮬레이터에서-앱-실행)
+12. [Android 에뮬레이터에서 앱 실행](#android-에뮬레이터에서-앱-실행)
+13. [트러블슈팅](#트러블슈팅)
 
 ---
 
@@ -288,24 +290,222 @@ grep ANDROID_HOME ~/.zshrc
 # 없다면 Step 7 다시 진행
 ```
 
----
+### 문제 6: Android 에뮬레이터에서 브라우저가 열림
 
-## 앱 실행하기
+Android 에뮬레이터에서 앱 대신 브라우저(localhost:xxxxx)가 열리는 경우:
 
-환경 설정이 완료되면 프로젝트를 실행할 수 있습니다.
+**원인**: `flutter run` 실행 시 Chrome이 기본 선택됨
 
+**해결**: 명시적으로 Android 에뮬레이터 지정
 ```bash
-# 의존성 설치
-flutter pub get
-
-# 사용 가능한 디바이스 확인
+# 디바이스 ID 확인
 flutter devices
 
-# 앱 실행
-flutter run
+# Android 에뮬레이터 명시적 지정
+flutter run -d emulator-5554
+```
 
-# 특정 디바이스에서 실행
-flutter run -d <device_id>
+### 문제 7: CocoaPods not installed (iOS)
+
+```
+✗ CocoaPods not installed.
+```
+
+**해결**:
+```bash
+# Homebrew로 설치 (권장)
+brew install cocoapods
+
+# 설치 후 iOS 의존성 설치
+cd ios && pod install && cd ..
+```
+
+### 문제 8: Android 에뮬레이터가 offline 상태
+
+```
+Device emulator-5554 is offline.
+```
+
+**해결**: 에뮬레이터 부팅 완료까지 대기 (10-30초)
+```bash
+# 잠시 대기 후 다시 확인
+sleep 10 && flutter devices
+```
+
+### 문제 9: 첫 Android 빌드가 오래 걸림
+
+첫 Android 빌드 시 NDK, CMake, Build-Tools가 자동 설치됩니다.
+
+**예상 소요 시간**: 5-10분
+
+빌드 캐시 문제 발생 시:
+```bash
+cd android
+./gradlew clean
+cd ..
+flutter run -d emulator-5554
+```
+
+### 문제 10: iOS 시뮬레이터가 목록에 없음
+
+```bash
+# Xcode 시뮬레이터 런타임 확인
+xcrun simctl list runtimes
+
+# 시뮬레이터 목록 확인
+xcrun simctl list devices
+```
+
+Xcode에서 추가 시뮬레이터 다운로드:
+1. Xcode > Settings (⌘,)
+2. Platforms 탭
+3. 원하는 iOS 버전 다운로드
+
+---
+
+## iOS 시뮬레이터에서 앱 실행
+
+### 1. iOS 의존성 설치 (최초 1회)
+
+프로젝트를 처음 실행하기 전에 iOS 의존성을 설치합니다.
+
+```bash
+# 프로젝트 루트에서
+cd ios
+pod install
+cd ..
+```
+
+> **참고**: CocoaPods가 설치되어 있지 않으면 `brew install cocoapods` 실행
+
+### 2. iOS 시뮬레이터 시작
+
+```bash
+# 사용 가능한 시뮬레이터 목록 확인
+flutter emulators
+
+# iOS 시뮬레이터 시작
+flutter emulators --launch apple_ios_simulator
+```
+
+또는 Xcode에서 직접:
+1. Xcode 실행
+2. 메뉴 **Window > Devices and Simulators** (⌘⇧2)
+3. 원하는 시뮬레이터 선택 후 부팅
+
+### 3. 앱 실행
+
+```bash
+# 연결된 디바이스 확인
+flutter devices
+
+# iOS 시뮬레이터에서 실행
+flutter run -d <simulator_id>
+
+# 예시
+flutter run -d 559086D0-91BD-4BE2-8CE6-FD5BD857A649
+```
+
+> **팁**: `flutter run`만 실행하면 여러 디바이스 중 선택할 수 있습니다.
+
+---
+
+## Android 에뮬레이터에서 앱 실행
+
+### 1. Android 에뮬레이터 생성 (최초 1회)
+
+Android Studio에서 에뮬레이터를 생성합니다.
+
+1. Android Studio 실행
+2. 메인 화면에서 **More Actions > Virtual Device Manager** 클릭
+3. **Create Device** 클릭
+4. 디바이스 선택 (예: Pixel 8, Medium Phone)
+5. 시스템 이미지 선택 (최신 API 권장)
+6. **Finish** 클릭
+
+### 2. Android 에뮬레이터 시작
+
+```bash
+# 사용 가능한 에뮬레이터 목록 확인
+flutter emulators
+
+# Android 에뮬레이터 시작 (이름은 flutter emulators 결과 참조)
+flutter emulators --launch <emulator_name>
+
+# 예시
+flutter emulators --launch Medium_Phone_API_36.1
+```
+
+또는 Android Studio에서 직접:
+1. Android Studio 실행
+2. **More Actions > Virtual Device Manager**
+3. 원하는 에뮬레이터 옆 ▶️ 버튼 클릭
+
+### 3. 앱 실행
+
+```bash
+# 연결된 디바이스 확인
+flutter devices
+
+# Android 에뮬레이터에서 실행
+flutter run -d emulator-5554
+```
+
+### 4. 첫 빌드 시 자동 설치 항목
+
+Android 앱을 처음 빌드할 때 다음 항목들이 자동으로 설치됩니다:
+- NDK (Native Development Kit)
+- Android SDK Build-Tools
+- CMake
+
+첫 빌드는 **5-10분** 정도 소요될 수 있습니다. 이후 빌드는 빠릅니다.
+
+---
+
+## 앱 실행 요약
+
+### 빠른 시작 명령어
+
+```bash
+# 1. 의존성 설치
+flutter pub get
+
+# 2. iOS 의존성 설치 (iOS 실행 시)
+cd ios && pod install && cd ..
+
+# 3. 사용 가능한 디바이스/에뮬레이터 확인
+flutter devices
+flutter emulators
+
+# 4. 시뮬레이터/에뮬레이터 시작
+flutter emulators --launch apple_ios_simulator      # iOS
+flutter emulators --launch <android_emulator_name>  # Android
+
+# 5. 앱 실행
+flutter run                    # 디바이스 선택 프롬프트
+flutter run -d <device_id>     # 특정 디바이스 지정
+```
+
+### Hot Reload 단축키
+
+앱 실행 중 터미널에서:
+
+| 키 | 동작 | 설명 |
+|----|------|------|
+| `r` | Hot Reload | 코드 변경 반영 (상태 유지) |
+| `R` | Hot Restart | 앱 재시작 (상태 초기화) |
+| `q` | 종료 | 앱 종료 |
+
+### 동시 실행
+
+iOS와 Android를 동시에 테스트하려면 터미널을 2개 열고 각각 실행:
+
+```bash
+# 터미널 1: iOS
+flutter run -d <ios_simulator_id>
+
+# 터미널 2: Android
+flutter run -d emulator-5554
 ```
 
 ---
