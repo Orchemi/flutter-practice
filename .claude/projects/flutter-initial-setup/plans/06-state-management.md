@@ -37,8 +37,8 @@
 
 | ID | 태스크 | 상태 |
 |----|--------|------|
-| TASK-0601 | ProviderScope 설정 | 🔲 |
-| TASK-0602 | 예제 Provider 생성 | 🔲 |
+| TASK-0601 | ProviderScope 설정 | ✅ |
+| TASK-0602 | 예제 Provider 생성 | ✅ |
 
 ---
 
@@ -48,7 +48,7 @@
 
 | 항목 | 내용 |
 |------|------|
-| **상태** | 🔲 진행 전 |
+| **상태** | ✅ 완료 |
 | **선행 조건** | Phase 5 완료 |
 
 ### 왜 필요한가요?
@@ -100,9 +100,9 @@ flutter_riverpod 패키지를 import하고 runApp을 ProviderScope로 감싸줘.
 
 ### 완료 기준
 
-- [ ] `flutter_riverpod` import 추가됨
-- [ ] `runApp`이 `ProviderScope`로 감싸짐
-- [ ] `flutter analyze` 에러 없음
+- [x] `flutter_riverpod` import 추가됨
+- [x] `runApp`이 `ProviderScope`로 감싸짐
+- [x] `flutter analyze` 에러 없음
 
 ### 사용자 검수 포인트
 
@@ -117,7 +117,7 @@ flutter_riverpod 패키지를 import하고 runApp을 ProviderScope로 감싸줘.
 
 | 항목 | 내용 |
 |------|------|
-| **상태** | 🔲 진행 전 |
+| **상태** | ✅ 완료 |
 | **선행 조건** | TASK-0601 완료 |
 
 ### 왜 필요한가요?
@@ -344,11 +344,11 @@ TASK-0602를 진행해줘.
 
 ### 완료 기준
 
-- [ ] `lib/shared/providers/counter_provider.dart` 생성됨
-- [ ] `counter_provider.g.dart` 생성됨 (build_runner)
-- [ ] `home_screen.dart`가 `ConsumerWidget` 사용
-- [ ] 카운터 기능이 동작함
-- [ ] `flutter analyze` 에러 없음
+- [x] `lib/shared/providers/counter_provider.dart` 생성됨
+- [x] `counter_provider.g.dart` 생성됨 (build_runner)
+- [x] `home_screen.dart`가 `ConsumerWidget` 사용
+- [x] 카운터 기능이 동작함
+- [x] `flutter analyze` 에러 없음
 
 ### 사용자 검수 포인트
 
@@ -397,10 +397,10 @@ Future<UserProfile> userProfile(UserProfileRef ref) async {
 ## 진행 현황
 
 ```
-Phase 6 진행률: [░░░░░░░░░░] 0%
+Phase 6 진행률: [██████████] 100% ✅
 
-TASK-0601 (ProviderScope): [░░░░░░░░░░] 0%
-TASK-0602 (예제 Provider): [░░░░░░░░░░] 0%
+TASK-0601 (ProviderScope): [██████████] 100% ✅
+TASK-0602 (예제 Provider): [██████████] 100% ✅
 ```
 
 ## 다음 단계
