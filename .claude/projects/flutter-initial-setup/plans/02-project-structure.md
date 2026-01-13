@@ -6,23 +6,23 @@
 
 ## React와 비교
 
-| React/Next.js | Flutter | 역할 |
-|---------------|---------|------|
-| `src/components/` | `lib/shared/widgets/` | 공통 UI 컴포넌트 |
-| `src/pages/` | `lib/features/*/presentation/screens/` | 화면 |
-| `src/hooks/` | `lib/features/*/presentation/providers/` | 상태/로직 |
-| `src/api/` | `lib/features/*/data/` | 데이터 레이어 |
-| `src/types/` | `lib/features/*/domain/models/` | 타입/모델 |
-| `package.json` | `pubspec.yaml` | 의존성 |
-| `.eslintrc` | `analysis_options.yaml` | lint 설정 |
+| React/Next.js     | Flutter                                  | 역할             |
+| ----------------- | ---------------------------------------- | ---------------- |
+| `src/components/` | `lib/shared/widgets/`                    | 공통 UI 컴포넌트 |
+| `src/pages/`      | `lib/features/*/presentation/screens/`   | 화면             |
+| `src/hooks/`      | `lib/features/*/presentation/providers/` | 상태/로직        |
+| `src/api/`        | `lib/features/*/data/`                   | 데이터 레이어    |
+| `src/types/`      | `lib/features/*/domain/models/`          | 타입/모델        |
+| `package.json`    | `pubspec.yaml`                           | 의존성           |
+| `.eslintrc`       | `analysis_options.yaml`                  | lint 설정        |
 
 ## 태스크 요약
 
-| ID | 태스크 | 상태 |
-|----|--------|------|
-| TASK-0201 | 폴더 구조 생성 | ✅ |
-| TASK-0202 | 필수 패키지 설치 (pubspec.yaml) | ✅ |
-| TASK-0203 | analysis_options.yaml 설정 | ✅ |
+| ID        | 태스크                          | 상태 |
+| --------- | ------------------------------- | ---- |
+| TASK-0201 | 폴더 구조 생성                  | ✅   |
+| TASK-0202 | 필수 패키지 설치 (pubspec.yaml) | ✅   |
+| TASK-0203 | analysis_options.yaml 설정      | ✅   |
 
 ---
 
@@ -30,9 +30,9 @@
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용         |
+| ------------- | ------------ |
+| **상태**      | ✅ 완료      |
 | **선행 조건** | Phase 1 완료 |
 
 ### 왜 이 구조인가?
@@ -40,6 +40,7 @@
 **Feature-First + Clean Architecture**를 사용합니다:
 
 1. **Feature-First**: 기능별로 코드를 그룹화
+
    - React의 `src/features/` 패턴과 동일
    - 기능 추가/삭제가 쉬움
 
@@ -131,25 +132,25 @@ TASK-0201을 진행해줘.
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0201 완료 |
 
 ### 왜 이 패키지들인가?
 
-| 패키지 | React 대응 | 역할 |
-|--------|-----------|------|
-| `go_router` | React Router | 라우팅 |
-| `flutter_riverpod` | Redux/Zustand | 상태 관리 |
-| `riverpod_annotation` | - | Riverpod 코드 생성 |
-| `dio` | axios | HTTP 클라이언트 |
-| `shared_preferences` | localStorage | 로컬 저장소 |
-| `flutter_hooks` | React Hooks | Hooks 패턴 |
-| `hooks_riverpod` | - | Hooks + Riverpod 통합 |
-| `freezed` | TypeScript interface | 불변 데이터 클래스 |
-| `json_serializable` | - | JSON 직렬화 |
-| `build_runner` | - | 코드 생성 실행기 |
+| 패키지                | React 대응           | 역할                  |
+| --------------------- | -------------------- | --------------------- |
+| `go_router`           | React Router         | 라우팅                |
+| `flutter_riverpod`    | Redux/Zustand        | 상태 관리             |
+| `riverpod_annotation` | -                    | Riverpod 코드 생성    |
+| `dio`                 | axios                | HTTP 클라이언트       |
+| `shared_preferences`  | localStorage         | 로컬 저장소           |
+| `flutter_hooks`       | React Hooks          | Hooks 패턴            |
+| `hooks_riverpod`      | -                    | Hooks + Riverpod 통합 |
+| `freezed`             | TypeScript interface | 불변 데이터 클래스    |
+| `json_serializable`   | -                    | JSON 직렬화           |
+| `build_runner`        | -                    | 코드 생성 실행기      |
 
 ### 체크리스트
 
@@ -158,7 +159,7 @@ TASK-0201을 진행해줘.
 ```yaml
 name: flutter_practice
 description: Flutter 연습용 프로젝트
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
@@ -239,14 +240,15 @@ pubspec.yaml을 위 내용으로 수정하고 flutter pub get을 실행해줘.
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0202 완료 |
 
 ### 왜 필요한가?
 
 ESLint처럼 코드 품질을 강제합니다. 엄격한 규칙으로 설정하면:
+
 - 타입 에러 조기 발견
 - 일관된 코드 스타일
 - 사용하지 않는 코드 감지
@@ -290,7 +292,7 @@ linter:
 
     # 타입 명시
     always_declare_return_types: true
-    always_specify_types: false  # 추론 가능할 때는 생략 허용
+    always_specify_types: false # 추론 가능할 때는 생략 허용
 
     # print 사용 금지 (릴리즈에서 문제)
     avoid_print: true
@@ -356,6 +358,7 @@ TASK-0203 (lint 설정):     [██████████] 100% ✅
 **2026-01-13 완료**
 
 1. **TASK-0201**: 폴더 구조 생성
+
    - Feature-First + Clean Architecture 구조 생성
    - lib/core/ (constants, theme, router, utils, extensions, network)
    - lib/features/home/ (presentation, domain, data)
@@ -363,6 +366,7 @@ TASK-0203 (lint 설정):     [██████████] 100% ✅
    - .gitkeep 파일로 빈 폴더 추적
 
 2. **TASK-0202**: 필수 패키지 설치
+
    - 라우팅: go_router ^14.6.2
    - 상태 관리: flutter_riverpod ^2.6.1, riverpod_annotation ^2.6.1
    - HTTP 클라이언트: dio ^5.7.0
@@ -372,7 +376,7 @@ TASK-0203 (lint 설정):     [██████████] 100% ✅
 
 3. **TASK-0203**: analysis_options.yaml 설정
    - strict 모드 활성화 (strict-casts, strict-inference, strict-raw-types)
-   - 코드 생성 파일 제외 (*.g.dart, *.freezed.dart)
+   - 코드 생성 파일 제외 (_.g.dart, _.freezed.dart)
    - const 사용 권장, print 금지 등 엄격한 lint 규칙
    - `flutter analyze` 통과 (No issues found)
 

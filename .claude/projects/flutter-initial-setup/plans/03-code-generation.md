@@ -16,7 +16,7 @@ interface User {
   email: string;
 }
 
-const user: User = { id: '1', name: 'John', email: 'john@test.com' };
+const user: User = { id: "1", name: "John", email: "john@test.com" };
 ```
 
 ```dart
@@ -83,11 +83,11 @@ class User with _$User {
 
 ## 태스크 요약
 
-| ID | 태스크 | 상태 |
-|----|--------|------|
-| TASK-0301 | build.yaml 설정 | ✅ |
-| TASK-0302 | freezed 예제 모델 생성 | ✅ |
-| TASK-0303 | 코드 생성 실행 및 확인 | ✅ |
+| ID        | 태스크                 | 상태 |
+| --------- | ---------------------- | ---- |
+| TASK-0301 | build.yaml 설정        | ✅   |
+| TASK-0302 | freezed 예제 모델 생성 | ✅   |
+| TASK-0303 | 코드 생성 실행 및 확인 | ✅   |
 
 ---
 
@@ -95,9 +95,9 @@ class User with _$User {
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용         |
+| ------------- | ------------ |
+| **상태**      | ✅ 완료      |
 | **선행 조건** | Phase 2 완료 |
 
 ### 왜 필요한가?
@@ -167,14 +167,15 @@ TASK-0301을 진행해줘.
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0301 완료 |
 
 ### freezed 사용법
 
 freezed 파일은 3부분으로 구성됩니다:
+
 1. **원본 파일** (직접 작성): `user.dart`
 2. **freezed 생성 파일** (자동): `user.freezed.dart`
 3. **JSON 생성 파일** (자동): `user.g.dart`
@@ -185,7 +186,7 @@ freezed 파일은 3부분으로 구성됩니다:
 
 `lib/shared/models/user.dart`:
 
-```dart
+````dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 // 생성될 파일 import (아직 없어도 OK)
@@ -215,19 +216,19 @@ class User with _$User {
   /// JSON → User 변환 (API 응답 파싱)
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 }
-```
+````
 
 #### freezed 문법 설명
 
-| 요소 | 설명 | TypeScript 비유 |
-|------|------|----------------|
-| `@freezed` | 클래스를 불변으로 만듦 | `readonly` |
-| `with _$User` | 생성된 코드 믹스인 | - |
-| `const factory User(...)` | 생성자 정의 | `interface User {...}` |
-| `= _User` | 실제 구현 클래스 | - |
-| `required` | 필수 필드 | 기본값 없는 필드 |
-| `@JsonKey(name: ...)` | JSON 키 매핑 | - |
-| `part '*.freezed.dart'` | 생성 파일 연결 | - |
+| 요소                      | 설명                   | TypeScript 비유        |
+| ------------------------- | ---------------------- | ---------------------- |
+| `@freezed`                | 클래스를 불변으로 만듦 | `readonly`             |
+| `with _$User`             | 생성된 코드 믹스인     | -                      |
+| `const factory User(...)` | 생성자 정의            | `interface User {...}` |
+| `= _User`                 | 실제 구현 클래스       | -                      |
+| `required`                | 필수 필드              | 기본값 없는 필드       |
+| `@JsonKey(name: ...)`     | JSON 키 매핑           | -                      |
+| `part '*.freezed.dart'`   | 생성 파일 연결         | -                      |
 
 ### Claude Code 지침
 
@@ -251,9 +252,9 @@ lib/shared/models/user.dart 파일을 위 내용으로 생성해줘.
 
 ### 개요
 
-| 항목 | 내용 |
-|------|------|
-| **상태** | ✅ 완료 |
+| 항목          | 내용           |
+| ------------- | -------------- |
+| **상태**      | ✅ 완료        |
 | **선행 조건** | TASK-0302 완료 |
 
 ### 코드 생성 명령어
@@ -280,18 +281,21 @@ dart run build_runner build --delete-conflicting-outputs
 #### 2단계: 생성된 파일 확인
 
 다음 파일들이 생성되어야 함:
+
 - `lib/shared/models/user.freezed.dart`
 - `lib/shared/models/user.g.dart`
 
 #### 3단계: 생성된 코드 내용 확인
 
 `user.freezed.dart`에는:
+
 - `copyWith()` 메서드
 - `==` 연산자
 - `hashCode`
 - `toString()`
 
 `user.g.dart`에는:
+
 - `_$UserFromJson()`
 - `_$UserToJson()`
 
@@ -357,11 +361,13 @@ TASK-0303 (코드 생성):    [██████████] 100% ✅
 **2026-01-13 완료**
 
 1. **TASK-0301**: build.yaml 설정
+
    - freezed, json_serializable, riverpod_generator 설정 추가
    - copyWith, equal, toString, fromJson, toJson 옵션 활성화
    - field_rename: snake 설정으로 camelCase ↔ snake_case 자동 변환
 
 2. **TASK-0302**: freezed 예제 모델 생성
+
    - lib/shared/models/user.dart 생성
    - @freezed 어노테이션 적용
    - @JsonKey로 created_at 필드 매핑
