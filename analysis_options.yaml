@@ -8,6 +8,8 @@ analyzer:
     unused_local_variable: warning
     # 사용하지 않는 필드 → 경고
     unused_field: warning
+    # freezed에서 @JsonKey 사용 시 발생하는 경고 무시
+    invalid_annotation_target: ignore
 
   exclude:
     # 생성된 파일 제외 (freezed, riverpod 등)
