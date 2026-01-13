@@ -1,28 +1,56 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
-#
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
-
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
-linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
-  rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+analyzer:
+  errors:
+    # 사용하지 않는 import → 에러
+    unused_import: error
+    # 사용하지 않는 지역 변수 → 경고
+    unused_local_variable: warning
+    # 사용하지 않는 필드 → 경고
+    unused_field: warning
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+  exclude:
+    # 생성된 파일 제외 (freezed, riverpod 등)
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gr.dart"
+    - "**/generated/**"
+
+  language:
+    # strict 모드 활성화
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    # === 필수 규칙 ===
+    # const 사용 권장
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
+
+    # 타입 명시
+    always_declare_return_types: true
+    always_specify_types: false  # 추론 가능할 때는 생략 허용
+
+    # print 사용 금지 (릴리즈에서 문제)
+    avoid_print: true
+
+    # === 코드 스타일 ===
+    # 빈 else 금지
+    avoid_empty_else: true
+    # 불필요한 this 금지
+    unnecessary_this: true
+    # 불필요한 new 금지
+    unnecessary_new: true
+
+    # === 가독성 ===
+    # 한 줄에 하나의 선언
+    avoid_multiple_declarations_per_line: true
+    # 빈 생성자 본문 금지
+    empty_constructor_bodies: true
+
+    # === Riverpod 관련 ===
+    # Provider를 외부에서 변경하지 않도록
+    # (riverpod_lint 추가 시 더 많은 규칙 적용 가능)
