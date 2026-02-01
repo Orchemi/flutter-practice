@@ -3,11 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/providers/counter_provider.dart';
 
-/// 홈 화면
-///
-/// ConsumerWidget: Riverpod Provider를 사용하는 위젯
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+/// Step 1: 기초 - 위젯, 상태관리, 테마 시스템
+class BasicsScreen extends ConsumerWidget {
+  const BasicsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,25 +14,13 @@ class HomeScreen extends ConsumerWidget {
     final textTheme = theme.textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Flutter Practice'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              // TODO: 설정 화면으로 이동
-              // context.go(AppRoutes.settings);
-            },
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Step 1: 기초')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 헤더 섹션
               Text('안녕하세요! 👋', style: textTheme.headlineLarge),
               const SizedBox(height: 8),
               Text(
@@ -45,7 +31,6 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 32),
 
-              // 상태 카드들
               _buildInfoCard(
                 context,
                 icon: Icons.check_circle,
@@ -82,11 +67,9 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 32),
 
-              // 카운터 섹션
               _buildCounterSection(context, ref, count),
               const SizedBox(height: 32),
 
-              // 하단 버튼
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -109,7 +92,6 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  /// 정보 카드 위젯
   Widget _buildInfoCard(
     BuildContext context, {
     required IconData icon,
@@ -120,16 +102,16 @@ class HomeScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha:0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withValues(alpha:0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -150,7 +132,6 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  /// 카운터 섹션 위젯
   Widget _buildCounterSection(BuildContext context, WidgetRef ref, int count) {
     return Container(
       padding: const EdgeInsets.all(24),
