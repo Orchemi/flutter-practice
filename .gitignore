@@ -46,3 +46,6 @@ windows/flutter/ephemeral/
 
 # Web
 web/.dart_tool/
+
+# Environment
+.env.local

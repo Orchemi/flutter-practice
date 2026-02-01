@@ -41,6 +41,7 @@ class HubScreen extends StatelessWidget {
       description: '스토리지, 데이터베이스, 인증',
       icon: Icons.cloud,
       color: AppColors.secondary,
+      isReady: true,
     ),
     _StepItem(
       id: 3,
