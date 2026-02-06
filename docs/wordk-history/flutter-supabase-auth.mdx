@@ -1,0 +1,280 @@
+---
+title: "Flutter Supabase Auth 구현기"
+description: "Flutter 앱에 Supabase를 연동하고 Google, Apple 소셜 로그인을 네이티브 방식으로 구현한 과정을 정리합니다."
+
+categories:
+  - Flutter
+
+tags:
+  - Flutter
+  - Supabase
+  - Auth
+
+createdAt: 2026-02-01T18:00
+published: false
+---
+
+## 개요
+
+Flutter 실습 프로젝트의 Step 2로 Supabase 연동을 시작했다. 첫 번째 기능으로 Auth(인증)를 선택했고, Google과 Apple 소셜 로그인을 네이티브 방식으로 구현했다. 이 글에서는 구조 설계부터 Provider 구성, UI 구현까지의 전체 과정을 다룬다.
+
+## 구조 설계
+
+### 기존 화면 vs 변경 후 화면
+
+기존 Step 2는 "준비 중" placeholder 단일 화면이었다. Supabase의 여러 기능(Auth, Storage, DB, Realtime)을 탐색할 수 있도록 탭 기반 구조로 전환했다.
+
+```
+Step 2: Supabase
+├── Auth 탭      → 로그인 / 유저 대시보드
+├── Storage 탭   → placeholder (미구현)
+├── DB 탭        → placeholder (미구현)
+└── Realtime 탭  → placeholder (미구현)
+```
+
+Auth 탭만 실제 기능이 동작하고, 나머지는 placeholder로 남겨두었다.
+
+### 파일 구조
+
+새로 생성한 파일은 총 8개다.
+
+```
+lib/
+├── core/config/
+│   └── supabase_config.dart          # dart-define 기반 설정
+├── shared/providers/
+│   ├── supabase_provider.dart        # Supabase 클라이언트
+│   ├── auth_state_provider.dart      # 인증 상태 Stream
+│   └── auth_actions_provider.dart    # 로그인/로그아웃 액션
+└── features/step2_supabase/presentation/widgets/
+    ├── auth_tab.dart                 # Auth 탭 컨테이너
+    ├── auth_login_view.dart          # 소셜 로그인 버튼 UI
+    ├── auth_dashboard_view.dart      # 유저 정보 + 로그아웃
+    └── placeholder_tab.dart          # 미구현 탭용 placeholder
+```
+
+## dart-define으로 환경 변수 관리
+
+Supabase URL과 anon key를 코드에 하드코딩하면 보안 문제가 생긴다. Flutter의 `--dart-define`을 활용해서 빌드 타임에 주입하는 방식을 택했다.
+
+```dart
+// lib/core/config/supabase_config.dart
+abstract class SupabaseConfig {
+  static const String url = String.fromEnvironment('SUPABASE_URL');
+  static const String anonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
+  static bool get isConfigured => url.isNotEmpty && anonKey.isNotEmpty;
+}
+```
+
+`String.fromEnvironment`은 컴파일 타임 상수이므로, `--dart-define`으로 전달하지 않으면 빈 문자열이 된다. `isConfigured`로 초기화 여부를 판단하여, 값이 없으면 Supabase 초기화를 건너뛰도록 했다.
+
+```dart
+// lib/main.dart
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (SupabaseConfig.isConfigured) {
+    await Supabase.initialize(
+      url: SupabaseConfig.url,
+      anonKey: SupabaseConfig.anonKey,
+    );
+  }
+
+  runApp(const ProviderScope(child: MyApp()));
+}
+```
+
+실행할 때는 이렇게 값을 전달한다:
+
+```bash
+flutter run \
+  --dart-define=SUPABASE_URL=https://xxx.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=eyJ...
+```
+
+## Provider 설계: 3개로 분리한 이유
+
+Riverpod Provider를 하나에 다 넣지 않고 client / state / actions 3개로 분리했다.
+
+### 1. supabase_provider - 클라이언트 접근
+
+```dart
+@riverpod
+SupabaseClient? supabaseClient(Ref ref) {
+  if (!SupabaseConfig.isConfigured) return null;
+  return Supabase.instance.client;
+}
+```
+
+Supabase 클라이언트를 nullable로 제공한다. 설정이 안 되어 있으면 `null`을 반환하므로, UI에서 분기 처리가 가능하다. 다른 Provider들이 이 Provider를 의존하는 구조다.
+
+### 2. auth_state_provider - 인증 상태 스트림
+
+```dart
+@riverpod
+Stream<AuthState> authState(Ref ref) {
+  final client = ref.watch(supabaseClientProvider);
+  if (client == null) return const Stream.empty();
+  return client.auth.onAuthStateChange;
+}
+```
+
+Supabase의 `onAuthStateChange` 스트림을 그대로 노출한다. `StreamProvider` 덕분에 UI에서는 `when(data:, loading:, error:)`으로 깔끔하게 처리할 수 있다. 로그인/로그아웃 시 자동으로 UI가 갱신된다.
+
+### 3. auth_actions_provider - 로그인/로그아웃 액션
+
+```dart
+@riverpod
+class AuthActions extends _$AuthActions {
+  @override
+  bool build() => false; // 로딩 상태
+
+  Future<void> signInWithGoogle() async { ... }
+  Future<void> signInWithApple() async { ... }
+  Future<void> signOut() async { ... }
+}
+```
+
+state를 `bool`(로딩 여부)로 관리한다. 로그인 시작 시 `state = true`, 완료 시 `state = false`로 전환하면 UI의 버튼 비활성화와 로딩 인디케이터에 반영된다.
+
+이렇게 분리하면 나중에 Storage나 DB 기능을 추가할 때 `supabaseClientProvider`만 의존하면 된다.
+
+## 네이티브 소셜 로그인 구현
+
+### Google 로그인
+
+`google_sign_in` 패키지로 네이티브 UI를 띄우고, 받은 ID Token을 Supabase에 전달하는 방식이다.
+
+```dart
+Future<void> signInWithGoogle() async {
+  state = true;
+  try {
+    final googleUser = await googleSignIn.signIn();
+    if (googleUser == null) return; // 사용자가 취소
+
+    final googleAuth = await googleUser.authentication;
+    final idToken = googleAuth.idToken;
+
+    await client.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken!,
+      accessToken: googleAuth.accessToken,
+    );
+  } finally {
+    state = false;
+  }
+}
+```
+
+웹 브라우저 팝업 대신 네이티브 Google 로그인 시트가 뜨므로 UX가 자연스럽다. `signInWithIdToken`은 Supabase가 토큰을 검증하고 유저를 생성/로그인 처리해준다.
+
+### Apple 로그인
+
+Apple 로그인은 nonce 기반 보안이 필수다. 랜덤 nonce를 생성하고, SHA256 해시를 Apple에 전달한 뒤, 원본 nonce를 Supabase에 넘겨 검증한다.
+
+```dart
+Future<void> signInWithApple() async {
+  final rawNonce = _generateNonce();
+  final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+  final credential = await SignInWithApple.getAppleIDCredential(
+    scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
+    nonce: hashedNonce,
+  );
+
+  await client.auth.signInWithIdToken(
+    provider: OAuthProvider.apple,
+    idToken: credential.identityToken!,
+    nonce: rawNonce,  // 원본 nonce
+  );
+}
+```
+
+`Platform.isIOS`로 iOS에서만 Apple 로그인 버튼을 노출하도록 했다.
+
+## UI: 인증 상태에 따른 화면 전환
+
+`AuthTab`이 핵심 컨테이너 역할을 한다. 세 가지 상태를 처리한다:
+
+1. **Supabase 미설정** → 설정 안내 메시지
+2. **미로그인** → 소셜 로그인 버튼 (AuthLoginView)
+3. **로그인됨** → 유저 정보 대시보드 (AuthDashboardView)
+
+```dart
+class AuthTab extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!SupabaseConfig.isConfigured) {
+      return /* 설정 안내 UI */;
+    }
+
+    final authState = ref.watch(authStateProvider);
+
+    return authState.when(
+      data: (state) {
+        final user = state.session?.user;
+        if (user != null) return AuthDashboardView(user: user);
+        return const AuthLoginView();
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => /* 에러 UI */,
+    );
+  }
+}
+```
+
+`authStateProvider`가 Stream 기반이라 로그인/로그아웃 시 별도의 상태 갱신 코드 없이 자동으로 화면이 전환된다.
+
+## 플랫폼 설정
+
+### iOS - Deep Link URL Scheme
+
+`ios/Runner/Info.plist`에 OAuth 콜백용 URL scheme을 추가했다:
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleTypeRole</key>
+    <string>Editor</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>com.orchemi.flutter-practice</string>
+    </array>
+  </dict>
+</array>
+```
+
+### Android - Deep Link Intent Filter
+
+`android/app/src/main/AndroidManifest.xml`에 intent-filter를 추가했다:
+
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="com.orchemi.flutter-practice"
+        android:host="login-callback" />
+</intent-filter>
+```
+
+Supabase가 OAuth 완료 후 `com.orchemi.flutter-practice://login-callback`으로 리디렉션하면 앱이 받아서 처리한다.
+
+## 사용한 패키지
+
+| 패키지 | 용도 |
+|--------|------|
+| `supabase_flutter` | Supabase SDK (Auth, DB, Storage 등) |
+| `google_sign_in` | Google 네이티브 로그인 |
+| `sign_in_with_apple` | Apple 네이티브 로그인 |
+| `crypto` | Apple 로그인 nonce SHA256 해싱 |
+
+## 마무리
+
+이번 작업에서는 구조를 먼저 잡고 기능을 채우는 방식으로 진행했다. 탭 구조를 만들어두고 Auth만 먼저 구현한 덕분에, Storage나 DB 같은 다음 기능을 추가할 때 `PlaceholderTab`을 실제 위젯으로 교체하기만 하면 된다.
+
+Provider를 3개로 분리한 것도 같은 맥락이다. `supabaseClientProvider`는 Auth뿐 아니라 Storage, DB, Realtime 기능에서도 공통으로 사용할 수 있다.
+
+실제 로그인 테스트를 하려면 Supabase 프로젝트 생성, Google Cloud Console OAuth 설정, 그리고 dart-define을 통한 키 주입이 필요하다. 이 부분은 별도 설정 가이드로 정리해두었다.
